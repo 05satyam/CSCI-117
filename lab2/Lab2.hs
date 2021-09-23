@@ -243,6 +243,20 @@ inorder2 (Node2 v t1 t2) = (inorder2 t1) ++ [v] ++ (inorder2 t2)
     [5,3,3,4,2,5,1]
 -}
 
+
+-- Convert a Tree2 into an equivalent Tree1 (with the same elements)
+
+conv21 :: Tree2 a -> Tree a
+conv21 t@(Leaf _) = Empty
+conv21 (Node2 v l r) = Node v (conv21 r) (conv21 l)
+{-
+    Examples:
+    :> tree12 = Node2 5 (Node2 3 (Leaf 5) (Node2 4 (Leaf 3) (Leaf 2))) (Leaf 1)
+    :> conv21 tree12
+    Node 5 Empty (Node 3 (Node 4 Empty Empty) Empty)
+
+-}
+
 -- END of PART 1 -----------------------------------------------------------------------
 
 --
