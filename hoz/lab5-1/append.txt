@@ -1,0 +1,120 @@
+// Append function p 133
+
+local Append L1 L2 L3
+Out Reverse Out1 in
+   Append = fun {$ Ls Ms}
+               case Ls
+                  of nil then Ms
+                  [] '|'(1:X 2:Lr) then Y in
+                     Y = {Append Lr Ms}
+                     // skip Full
+                     (X|Y)
+                end
+            end
+
+   L1 = (1|(2|(3|nil)))
+   L2 = (4|(5|(6|nil)))
+
+   Out = {Append L1 L2}
+   skip Browse Out
+   skip Full
+
+
+   skip Basic
+   skip Basic
+   skip Basic
+
+
+// implementing reverse function
+
+   L3 = (6|(7|(8|(9|nil))))
+   Reverse = fun{$ L}
+               case L
+                 of nil then nil
+                 [] '|'(1:X 2:Xs) then {Append {Reverse Xs} [X]}
+               end
+            end
+    Out1  = {Reverse L3}
+    skip Browse Out1
+    skip Full
+end
+
+
+
+
+/*
+output for only reverse function skip Browse
+
+Out1 : [ 9  8  7  6 ]
+
+Store : ((106, 92), '|'(1:103 2:104)),
+((105, 87, 74, 66, 65, 50), 9),
+((104, 95), '|'(1:101 2:102)),
+((103, 85, 69, 68, 48), 8),
+((102, 98, 100, 97, 94, 54), '|'(1:90 2:91)),
+((101, 77, 76, 46), 7),
+((99, 78), nil()),
+((96, 86, 82, 84, 81, 57), '|'(1:77 2:78)),
+((93, 88, 79), '|'(1:85 2:86)),
+((90, 89, 44), 6),
+((91), nil()),
+((83, 70), nil()),
+((80, 75, 71, 73, 60), '|'(1:69 2:70)),
+((72, 67), nil()),
+((59, 63), '|'(1:66 2:67)),
+((64, 51), nil()),
+((62), nil()),
+((61, 49), '|'(1:50 2:51)),
+((58, 47), '|'(1:48 2:49)),
+((56), '|'(1:74 2:75)),
+((55, 45), '|'(1:46 2:47)),
+((53), '|'(1:87 2:88)),
+((52, 11), '|'(1:44 2:45)),
+((43, 29), '|'(1:40 2:41)),
+((42, 15), 1),
+((41, 32), '|'(1:38 2:39)),
+((40, 17), 2),
+((39, 35, 37, 34, 31, 28, 10), '|'(1:21 2:22)),
+((38, 19), 3),
+((36, 20), nil()),
+((33, 18), '|'(1:19 2:20)),
+((30, 16), '|'(1:17 2:18)),
+((27, 9), '|'(1:15 2:16)),
+((25), 6),
+((26), nil()),
+((23), 5),
+((24), '|'(1:25 2:26)),
+((21), 4),
+((22), '|'(1:23 2:24)),
+((8), proc(["Ls","Ms","EXU1"],[case Ls of nil() then [EXU1 = Ms] else [case Ls of '|'(1:X 2:Lr) then [local ["Y"] [local ["EXU2","EXU3"] [EXU2 = Lr,EXU3 = Ms,"Append" "EXU2" "EXU3" "Y"],local ["EXU2","EXU3"] [EXU2 = X,EXU3 = Y,EXU1 = '|'(1:EXU2 2:EXU3)]]] else [skip]]],[("Append",8)])),
+((12), '|'(1:42 2:43)),
+((13), proc(["L","EXU1"],[case L of nil() then [EXU1 = nil()] else [case L of '|'(1:X 2:Xs) then [local ["EXU2","EXU3"] [local ["EXU4"] [EXU4 = Xs,"Reverse" "EXU4" "EXU2"],local ["EXU4"] [EXU4 = X,local ["EXU5","EXU6"] [EXU5 = EXU4,EXU6 = nil(),EXU3 = '|'(1:EXU5 2:EXU6)]],"Append" "EXU2" "EXU3" "EXU1"]] else [skip]]],[("Reverse",13),("Append",8)])),
+((14), '|'(1:105 2:106)),
+((1), Primitive Operation),
+((2), Primitive Operation),
+((3), Primitive Operation),
+((4), Primitive Operation),
+((5), Primitive Operation),
+((6), Primitive Operation),
+((7), Primitive Operation)
+
+Mutable Store: Empty
+Current Environment : ("Append" -> 8, "L1" -> 9, "L2" -> 10, "L3" -> 11, "Out" -> 12, "Reverse" -> 13, "Out1" -> 14, "IntPlus" -> 1, "IntMinus" -> 2, "Eq" -> 3, "GT" -> 4, "LT" -> 5, "Mod" -> 6, "IntMultiply" -> 7)
+Stack : ""
+
+
+
+
+Explanantions:
+
+
+input L3 is [6,7,8,9]
+output is printed by variable Out1
+
+Store location of Out1 is 14, so binded value to store location 14 is ('|'(1:105 2:106))
+store location 105 is having value '9' which is our first valye in reverse.
+now store location 106 is binded to ('|'(1:103 2:104)), here store location 103 is binded to value '8' and this out second value in reversse
+for store location 104 is binded to ('|'(1:101 2:102)) and store location 101 is having value '7' which is our third value in Reverse
+for store location 102 is binded to ('|'(1:90 2:91)) and store location 90 is binded to value '6' which is 4th value in Reverse
+and the store location 91 is binded to 'nil' and this marks the end of list and list is in reverse order now.
+*/

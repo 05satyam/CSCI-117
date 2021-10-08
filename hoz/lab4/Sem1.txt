@@ -1,0 +1,59 @@
+// Run this program through the Oz interpreter by calling
+//    runFull "declarative" "lab4/Sem1.txt" "lab4/Sem1.out"
+// Explain the resulting store
+
+local X in
+  local Y in
+    X = 2
+    Y = pair(1:X 2:X)
+    case Y of pair(1:Z 2:W) then
+      local S in
+        {IntPlus Z W S}
+        skip Full
+      end
+      else
+        skip Basic
+    end
+  end
+end
+
+
+
+/*
+    output:
+    Store : ((15, 12), 2),         -----1
+      ((14, 13, 11, 10, 8), 1),      -----2
+      ((9), pair(1:10 2:11)),        -----3
+      ((1), Primitive Operation),
+      ((2), Primitive Operation),
+      ((3), Primitive Operation),
+      ((4), Primitive Operation),
+      ((5), Primitive Operation),
+      ((6), Primitive Operation),
+      ((7), Primitive Operation)
+
+      Mutable Store: Empty
+      Current Environment : ("S" -> 12, "Z" -> 10, "W" -> 11, "Y" -> 9, "X" -> 8, "IntPlus" -> 1, "IntMinus" -> 2, "Eq" -> 3, "GT" -> 4, "LT" -> 5, "Mod" -> 6, "IntMultiply" -> 7)
+      Stack : ""
+
+
+
+      Explanation:
+
+      In output line 1 above, we have two store location binded to value 2
+      out of two store location  (15,12), (15) is a local variable having local scope hence not present in Current Environment stack and one store point i.e (12) is assigned to variable S
+
+      In output line 2 above, we are having 5 store location binded to value 1. Among these 5 store locations,
+      (14,13) are pointing to local variables which are present in Current Environment stack as they are having local scope
+      on the other hand
+      {Store location (11) is pointing to variable W,
+      Store location (10) is pointing to variable Z,
+      Store location (8) is pointing to variable X} are also binded to value 2
+
+      Store location (9) is binded with a pair value of (1:10 2:11) which is pointed by variable Y
+
+      Rest all store locations i.e. ((1),(2),(3),(4),(5),(6),(7)) are pointing to primitive operations which are shown in Current Environment Stack.
+
+      Skip Full is used to show all the store location and their binding values along with current Environment Stack
+      Skip Basic is normal skip which is used to skip the current execution line.
+*/

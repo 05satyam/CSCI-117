@@ -1,0 +1,67 @@
+// Haskell version of fib:
+//    fib :: Int -> Int
+//    fib 0 = 1
+//    fib 1 = 1
+//    fib x = fib (x-1) + fib (x-2)
+//
+// Rewrite fib in Oz kernel syntax using the template below, including
+// a "skip stack" command added to the first base case, using the
+// primitive operations {Eq X Y B}, {IntMinus X Y A}, and {IntPlus X Y A}.
+//
+// Run through the Oz interpreter by calling
+//    runFull "declarative" "fib_oz.txt" "fib_oz.out"
+// after ghci fib_oz.txt and give a brief explanation of each of the stack outputs.
+
+local X Result Fib ONE ZERO TWO in
+  ONE=1
+  ZERO=0
+  TWO =2
+  Fib = proc {$ X Result}
+    local BOOL1 BOOL2 FirstItr ScndItr S T in
+      {Eq X ZERO  BOOL1}
+      if BOOL1 then skip Stack Result=1
+      else
+        {Eq X ONE  BOOL2}
+        if BOOL2 then skip Stack Result=1
+         else
+           {IntMinus X ONE S}
+           {IntMinus X TWO T}
+           {Fib S FirstItr}
+           {Fib T ScndItr}
+           {IntPlus FirstItr ScndItr Result}
+         end
+       end
+     end
+  end
+  X = 4
+  {Fib X Result}
+  skip Browse Result
+end
+
+/*
+  output:
+  Stack : "Result = 1local [\"EXU1\",\"EXU2\"] [EXU1 = T,EXU2 = ScndItr,\"Fib\" \"EXU1\" \"EXU2\"]local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]local [\"EXU1\",\"EXU2\"] [EXU1 = T,EXU2 = ScndItr,\"Fib\" \"EXU1\" \"EXU2\"]local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]local [\"EXU1\",\"EXU2\"] [EXU1 = T,EXU2 = ScndItr,\"Fib\" \"EXU1\" \"EXU2\"]local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]skip/BResult"
+
+  Stack : "Result = 1local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]local [\"EXU1\",\"EXU2\"] [EXU1 = T,EXU2 = ScndItr,\"Fib\" \"EXU1\" \"EXU2\"]local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]local [\"EXU1\",\"EXU2\"] [EXU1 = T,EXU2 = ScndItr,\"Fib\" \"EXU1\" \"EXU2\"]local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]skip/BResult"
+
+  Stack : "Result = 1local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]local [\"EXU1\",\"EXU2\"] [EXU1 = T,EXU2 = ScndItr,\"Fib\" \"EXU1\" \"EXU2\"]local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]skip/BResult"
+
+  Stack : "Result = 1local [\"EXU1\",\"EXU2\"] [EXU1 = T,EXU2 = ScndItr,\"Fib\" \"EXU1\" \"EXU2\"]local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]skip/BResult"
+
+  Stack : "Result = 1local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]local [\"EXU1\",\"EXU2\",\"EXU3\"] [EXU1 = FirstItr,EXU2 = ScndItr,EXU3 = Result,\"IntPlus\" \"EXU1\" \"EXU2\" \"EXU3\"]skip/BResult"
+
+  Result : 5
+
+  Explanation:
+  Variables:
+  ONE=1
+  ZERO=0
+  TWO =2, these are declared in outer local because these values will not change through out the fib execution
+
+  As per above output, we are calling Fib procedure with 2 arguments and declaring local variables BOOL1, BOOL2, FirstItr, ScndItr, S, T
+  following two base case validations, while recalling the fib again, we need to make separate recursive store the result in local variable like FirstItr and ScndItr
+  and using primitve operations stroing the result in Result as showing in stack operations
+
+  
+
+*/

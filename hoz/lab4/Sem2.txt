@@ -1,0 +1,60 @@
+// Run this program through the Oz interpreter by calling
+//    runFull "declarative" "Sem2.txt" "Sem2.out"
+// Explain the resulting store
+
+local Max Y in
+  Max = proc {$ X}
+    local B in
+        {GT X Y B}
+        if B then
+          skip Browse X
+
+        else
+          skip Browse Y
+        end
+    end
+  end
+  Y = 3
+  local X Y in
+    Y = 6
+    X = 4
+    skip Full
+    {Max X}
+  end
+end
+
+
+/*
+    output:
+    Store : ((10), 4),        -----1
+    ((11), 6),                -----2
+    ((8), proc(["X"],[local ["B"] [local ["EXU1","EXU2","EXU3"] [EXU1 = X,EXU2 = Y,EXU3 = B,"GT" "EXU1" "EXU2" "EXU3"],local ["EXU1"] [EXU1 = B,if EXU1 then [skip/BX] else [skip/BY]]]],[("Y",9),("GT",4)])),   ------3
+    ((9), 3),                 -----4
+    ((1), Primitive Operation),
+    ((2), Primitive Operation),
+    ((3), Primitive Operation),
+    ((4), Primitive Operation),
+    ((5), Primitive Operation),
+    ((6), Primitive Operation),
+    ((7), Primitive Operation)
+
+    Mutable Store: Empty
+    Current Environment : ("X" -> 10, "Y" -> 11, "Max" -> 8, "Y" -> 9, "IntPlus" -> 1, "IntMinus" -> 2, "Eq" -> 3, "GT" -> 4, "LT" -> 5, "Mod" -> 6, "IntMultiply" -> 7)
+    Stack : "local [\"EXU1\"] [EXU1 = X,\"Max\" \"EXU1\"]"
+
+    X : 4
+
+
+    Explanation:
+
+    In line 1 of output, store location (10) which is represent variable X is binded to value 4
+    In line 2 of output, store location (11) which is represent variable Y is binded to value 6, here Y is having the local scope
+    In line 3, store location (8) is a procedure max which is taking a variable X as input which itself is creating a local varibale B which will be holding the result of GT X Y and  skip Browse will show either X or Y depending upon GT function values
+    Now, till this point Y(store location (9)) is unbounded and gets binded when Y=3, here this Y is different than Store location (11) Y.
+    Store location (9) is having a context scope that is it is kind a global scope and hence this is used in GT function
+
+    Rest all store locations i.e. ((1),(2),(3),(4),(5),(6),(7)) are pointing to primitive operations which are shown in Current Environment Stack.
+
+    Skip Full show the complete stack and current environment on the console.
+
+*/

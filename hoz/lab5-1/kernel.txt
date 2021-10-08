@@ -1,0 +1,124 @@
+// 1) nested if, nested case my kernel conversion
+
+[
+  local ["A","B"]
+    [
+      [local ["EXU1"] [EXU1=A,  = false()],
+      local ["EXU2"] [EXU2 = true(),if EXU2 then [skip] elseif [local ["EXU3"] [EXU3 = B,if EXU3 then [skip] else [skip]]]],
+      case A of tree() then [skip]
+        else [case A of false() then [skip] else [case A of true() then [skip] else [skip]]]
+    ]
+]
+
+Difference from actual kernel file:
+
+   I created a local for A=false() while performing kernel conversion, i.e. [local ["EXU1"] [EXU1=A,  = false()]
+   while this is not done in actual kernel conversion by compiler
+
+   Also, for skip Basic, actual compiler has done skip/BA  while in my conversion I wrote simple skip
+
+   also, for nested if-else ladder, I have used elseif as it is whereas in compiler conversion elseif is converted to else only.
+
+
+
+
+// 2) more expressions; note that applications of primitive binary operators
+//    ==, <, >, +, -, *, mod must be enclosed in parentheses (for hoz)
+
+[
+  local ["A"]
+    [
+     A = 2,local [local ["EXU2","EXU3"] [EXU2 = A,EXU3 = 1,"Eq" "EXU2" "EXU3" "EXU1"],if EXU1 then [skip] else [skip]],
+     local ["EXU1"]
+      [
+        local ["EXU2"] [EXU2 = A,local ["EXU5","EXU6"] [EXU5 = 3,EXU6 = 1,"IntMinus" "EXU5" "EXU6" "EXU3"],"Eq" "EXU2" "EXU3" "EXU1"],
+        if EXU1 then [skip]
+      ]
+    ]
+]
+
+Difference from actual kernel file:
+
+First, I declared EXU1 directly in the block where EXU2, EXU3, Eq are written where as in actual compiler version its declared before local block of same. Similarly I did for EXU3 without declaring in local block of EXU2 I used it directly as a result holding variables
+Second, skip basic is written as skip/BA in actual compiler conversion while I did skip only
+Third, in the last if there is no else with if so I exclude the same but in actual compiler conversion else is also included by the compiler
+
+
+
+
+
+// 3) "in" declaration
+[
+ local ["X","Y"]
+  [
+     local ["EXU1","EXU2"] [EXU1 = 3,EXU2 = T,T = tree(1:EXU1 2:EXU2)],
+        local ["A","B","PTU0"]
+         [
+           EXU4 = tree(1:A 2:B),EXU4 = T,local ["EXU1"]
+             [
+               local ["EXU2","EXU3"] [EXU2 = 1,EXU3 = 1,"Eq" "EXU2" "EXU3" "EXU1"],
+                if EXU1 then [local ["Z"]
+                 [
+                  local ["B"] [local ["EXU1","EXU2"] [EXU1 = 5,EXU2 = 2,"IntMinus" "EXU1" "EXU2" "B"],
+                  skip]]]]
+          ]
+
+    ]
+]
+
+Difference from actual kernel file:
+
+first, tree assignment is done wrong in my explanation
+second, In my compiler explanation i forgot to create a local after local["X", "Y"] which is present in actual compiler conversion
+third skip Browse is written as skip/BB in actual compiler conversion while I did skip only
+fourth, after if block else was included in the actual compiler conversion but in my compiler conversion i didnt include the else part after if
+
+
+
+
+
+//4)expressions in place of statements
+
+[
+  local ["EXU1" ,"EXU2"][EXU1= Fun,EXU2=R]
+  [
+    Fun = proc {$ X EXU3} [EXU3 = X],
+    local ["EXU3"] [EXU3 = 4,"Fun" "EXU3" "R"],
+    skip
+  ]
+]
+
+
+Difference from actual kernel file:
+
+First, i declared EXU1 and EXU2 for "FUN" and "R" but in actual compiler conversion this was not done.
+Second, for skip Browse I wrote skip only while in actual compiler convert skip Browse to skip/BR
+
+
+
+
+//5) Bind fun
+
+[
+  local ["A","B"]
+   [
+     skip,
+     local ["EXU1","EXU2","EXU3"]
+     [
+       EXU1 = 4,EXU2 = B,local ["EXU4","EXU5"] [EXU4 = B,EXU5 = B,EXU3 = '#'(1:EXU4 2:EXU5)],A = rdc(1:EXU1 2:EXU2 3:EXU3)
+
+      ],
+      local ["EXU6","EXU7"]
+      [
+        EXU6 = 5,local ["EXU8","EXU9"] [EXU8 = 3,EXU9 = 4,"IntMinus" "EXU8" "EXU9" "EXU7"],"IntPlus" "EXU6" "EXU7" "B"
+      ],
+      skip,
+      skip,
+      skip
+    ]
+]
+
+Difference from actual kernel file:
+
+for skip in the ending of kernel syntax I didn't mentioned like skip/BA, skip/s as it should be according to actual compiler conversion
+for declaring EXU in compiler version, i declared EXU6, EXU7, EXU8, EXU9 where as in actual compiler conversion EXU2, EXU1, EXU3, EXU5, EXU5 have been re-used to save the extra memory

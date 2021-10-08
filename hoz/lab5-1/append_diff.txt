@@ -1,0 +1,110 @@
+// Append with difference lists
+local L1 End1 L2 End2 H1 T1 H2 T2 LNew Reverse Out L3 in
+   L1 = ((1|(2|End1)) # End1)        // List [1,2] as a difference list
+   L2 = ((3|(4|End2)) # End2)        // List [3,4] as a difference list
+
+   L1 = (H1 # T1)                    // Pattern match, name head and tail
+   L2 = (H2 # T2)                    // Pattern match, name head and tail
+   T1 = H2                           // Bind/unify tail of L1 with head of L2
+
+   LNew = (L1 # T2)                  // Build a new difference list
+
+   skip Browse LNew
+   skip Full
+
+
+
+
+
+Reverse = fun {$ Xs} Y1 ReverseD in
+    proc {ReverseD Xs Y1 Y}
+       case Xs
+          of nil then Y1 = Y
+          [] '|'(1:X 2:Xr) then {ReverseD Xr Y1 (X|Y)}
+       end
+    end
+    {ReverseD Xs Y1 nil}
+    Y1
+ end
+ L3 = (6|(7|(8|(9|nil))))
+
+
+ Out = {Reverse L3}
+ skip Browse Out
+ skip Full
+
+end
+
+
+/*
+    output
+
+    *Hoz> runFull "declarative" "lab5-1/append_diff.txt" "lab5-1/append_diff.out"
+    Out : [ 9  8  7  6 ]
+
+    Store : ((18, 70, 65, 60, 55, 52, 49, 71), '|'(1:72 2:73)),
+    ((73, 66), '|'(1:67 2:68)),
+    ((72, 46), 9),
+    ((69, 47), nil()),
+    ((68, 61), '|'(1:62 2:63)),
+    ((67, 44), 8),
+    ((64, 45), '|'(1:46 2:47)),
+    ((63, 56), '|'(1:57 2:58)),
+    ((62, 42), 7),
+    ((59, 43), '|'(1:44 2:45)),
+    ((58, 53), nil()),
+    ((57, 40), 6),
+    ((54, 41), '|'(1:42 2:43)),
+    ((51, 48, 19), '|'(1:40 2:41)),
+    ((50), proc(["Xs","Y1","Y"],[case Xs of nil() then [Y1 = Y] else [case Xs of '|'(1:X 2:Xr) then [local ["EXU2","EXU3","EXU4"] [EXU2 = Xr,EXU3 = Y1,local ["EXU5","EXU6"] [EXU5 = X,EXU6 = Y,EXU4 = '|'(1:EXU5 2:EXU6)],"ReverseD" "EXU2" "EXU3" "EXU4"]] else [skip]]],[("ReverseD",50)])),
+    ((39, 27, 31, 11, 36, 15), Unbound),
+    ((38, 8, 34), '#'(1:20 2:21)),
+    ((21, 25, 9, 33, 13, 26, 35, 14), '|'(1:28 2:29)),
+    ((10, 37), '#'(1:26 2:27)),
+    ((20, 32, 12), '|'(1:22 2:23)),
+    ((30), 4),
+    ((28), 3),
+    ((29), '|'(1:30 2:31)),
+    ((24), 2),
+    ((22), 1),
+    ((23), '|'(1:24 2:25)),
+    ((16), '#'(1:38 2:39)),
+    ((17), proc(["Xs","EXU1"],[local ["Y1","ReverseD"] [ReverseD = proc {$ Xs Y1 Y} [case Xs of nil() then [Y1 = Y] else [case Xs of '|'(1:X 2:Xr) then [local ["EXU2","EXU3","EXU4"] [EXU2 = Xr,EXU3 = Y1,local ["EXU5","EXU6"] [EXU5 = X,EXU6 = Y,EXU4 = '|'(1:EXU5 2:EXU6)],"ReverseD" "EXU2" "EXU3" "EXU4"]] else [skip]]],local ["EXU2","EXU3","EXU4"] [EXU2 = Xs,EXU3 = Y1,EXU4 = nil(),"ReverseD" "EXU2" "EXU3" "EXU4"],EXU1 = Y1]],[])),
+    ((1), Primitive Operation),
+    ((2), Primitive Operation),
+    ((3), Primitive Operation),
+    ((4), Primitive Operation),
+    ((5), Primitive Operation),
+    ((6), Primitive Operation),
+    ((7), Primitive Operation)
+
+    Mutable Store: Empty
+    Current Environment : ("L1" -> 8, "End1" -> 9, "L2" -> 10, "End2" -> 11, "H1" -> 12, "T1" -> 13, "H2" -> 14, "T2" -> 15, "LNew" -> 16, "Reverse" -> 17, "Out" -> 18, "L3" -> 19, "IntPlus" -> 1, "IntMinus" -> 2, "Eq" -> 3, "GT" -> 4, "LT" -> 5, "Mod" -> 6, "IntMultiply" -> 7)
+    Stack : ""
+
+
+
+
+
+EXPLANATION:
+
+  Input given : L3= (6|(7|(8|(9|nil))))
+  Output Out = [ 9 8 7 6 ]
+
+  now, store location of Out is 18 which is binded to ('|'(1:72 2:73)) and store location 72 holds the value "9" which is our first value in reverse lists
+  store location 73 is binded to ('|'(1:67 2:68)), here store location 67 is binded to value "8" which is our second value in reverse list
+  store location 68 is binded to ('|'(1:62 2:63)), here store location 62 is binded to value "7" which is our third value in reveresed list
+  and store location 63 is bineded to ('|'(1:57 2:58)), here 57 store location is binded to value "6" and finally store location 58 is binded to "nil()", this marks the end of reverse lists
+
+
+*/
+
+
+//C. Count the number of cons operations '|' used to construct the output lists of Reverse in (A) vs (B) for a list of size 6. Explain your answer.
+
+/*Ans.
+
+for Reverse (B) there were 16 cons operations while in Reverse(A) we saw total of 31 cons operations
+there is a gap due to fact that, in Reverse(B) we are using itrative approach where we are doing any operation after the recusrive call of Reverse function
+where as in Reverse(A) we are perforing append operation after the recusrive call which is leading to more cons operations.
+*/
