@@ -1,0 +1,489 @@
+//PART1
+
+//a)
+
+local B in
+ thread            // S1
+B=true          // T1
+if B then         // S3
+skip Browse B   // S3.1
+ thread            // S2
+B=false         // T2
+  end
+  end
+  end
+end
+
+/* Outputs:
+1. S1 T1 S3 S2 T2 S3.1 --> Cant unify B in value creation.
+2. S1 T1 S2 S3 S3.1 T2 --> B:True()
+3. S1 T2 S2 S3 T2 S3.1 --> Cant unify B in value creation.
+4. S1 T1 S2 T2 S3.1 S3 --> Error
+S2 S1 T1 S3 T2 S3.1 --> Cant unify B in value creation.
+5. S2 T2 S3 S3.1 S1 T1 --> No Output.
+6. S2 T2 S1 T1 S3 S3.1 --> Cant unify B in value creation.
+7. S2 S1 T1 T2 S3 S3.1 --> Cant unify B in value creation.
+8. S2 T2 S1 S3 T1 S3.1 --> No Output.
+9. S2 T2 S1 S3.1 T1 S3 --> Error
+10. S2 T2 S1 S3 S3.1 T1 --> No Output.
+11. S2 T2 S1 T1 S3.1 S3 --> Error
+12. S1 T1 S2 T2 S3 S3.1 --> Cant unify B in value creation.
+13. S2 S1 T2 T1 S3 S3.1 --> Cant unify B in value creation.
+14. S2 S1 S3 T1 T2 S3.1 --> Deadlocked statements.
+15. S1 T1 S3 S2 T2 S3.1 --> Cant unify B in value creation.
+16. S1 S2 T1 S3 T2 S3.1 --> Cant unify B in value creation.
+17. S1 S2 T1 T2 S3 S3.1 --> Cant unify B in value creation.
+18. S2 T2 S3.1 S3 S1 T1 --> B:False()
+19. S1 T1 S3 S3.1 S2 T2 --> Cant unify B in value creation.
+
+*/
+
+
+
+//b)
+
+local X Y T in
+  thread Y = X end
+  X = 3
+  skip Browse Y
+end
+
+local T1 T2 in
+ T2 = thread 3 end
+ T1 = thread (4+3) end
+ skip Browse T2
+ skip Browse T1
+end
+
+/* Output: Finite 1
+*Hoz> runFullT (Finite 1) "declarative threaded" "thread2.txt" "thread2.out"
+Y : 3
+
+T2 : 3
+
+T1 : Unbound
+*/
+when finite =1 then T1 remain unbounded and Y=3 and T2=3 is assigned.
+
+/* Output: Infinity
+*Hoz> runFullT (Infinity) "declarative threaded" "thread2.txt" "thread2.out"
+Y : Unbound
+
+T2 : Unbound
+
+T1 : Unbound
+
+when quantum is infinity then T1 , Y and T2 remain unbounded
+
+*/
+
+
+//c)
+
+local Z in
+  Z = 3
+  thread local X in
+    X = 1
+    skip Browse X
+    skip Browse X
+skip Basic
+    skip Browse X
+    skip Browse X
+skip Basic
+    skip Browse X
+    end
+  end
+  thread local Y in
+    Y = 2
+    skip Browse Y
+skip Basic
+    skip Browse Y
+    skip Browse Y
+    skip Browse Y
+skip Basic
+    skip Browse Y
+
+    end
+skip Basic
+end
+  skip Browse Z
+  skip Browse Z
+  skip Browse Z
+skip Basic
+  skip Browse Z
+
+skip Browse Z
+skip Basic
+ end
+
+
+
+//d)
+
+ local B in
+  B = thread true end
+  if B then skip Browse B end
+end
+
+/*Thread suspended at Finite 5
+Output: Finite 5
+*Hoz> runFullT (Finite 5) "declarative threaded" "thread4.txt" "thread4.out"
+thread supsended: [(if EXU1 then [skip/BB] else [skip],[("EXU1",9),("B",8),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+B : true()
+
+if we look in kernal syntax suspension occur at Fninte 5 because in kernal version if condition is the 5th instructions and hence lead to suspension at Finite 5
+*/
+
+
+
+//e) fib1_sugar.txt
+
+
+local Fib X Result in
+  Fib = fun {$ In}
+    if (In == 0) then
+      1
+    elseif (In == 1) then
+      1
+    else
+      ({Fib (In-1)} + {Fib (In - 2)})
+    end
+  end
+  X = 16
+  Result = {Fib X}
+  skip Browse Result
+end
+
+/* Output
+X=12
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 233
+
+(2.02 secs, 796,340,704 bytes)
+
+X=13
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 377
+
+(5.08 secs, 2,023,921,480 bytes)
+
+X=14
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 610
+
+(13.02 secs, 5,199,275,136 bytes)
+
+X=15
+*Hoz> runFullT (Finite 3) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 987
+
+(32.61 secs, 13,449,972,624 bytes)
+
+X=16
+*Hoz> runFullT (Finite 3) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 1597
+
+(84.12 secs, 34,936,141,736 bytes)-----(>1min)
+
+
+Explanation:
+
+After observing the outpus we can say, for increasing value of X there is a pattern in output where sum of two consecutive outpus results in the third output
+eg. 377+610=987; 610+987=1597
+
+
+     X                    R           Time
+    12                 233          35.52 sec
+    13                 377          45.78 sec
+    14                  610         57.85 sec
+    15                 987          64.29 sec
+
+at X=16 we get a time more then 1 min. here, at X=16 only we are above 1min and this is because there are two recusive call in the Fib which wil be computing the values and will form like a binary threaded
+each node will have two child nodes and inturn will result in more time consumptions
+*/
+
+
+
+// fib2_sugar.txt
+
+local Fib Fib1 X R in
+  Fib1 = fun {$ X N M}
+    if (X == 0) then
+      M
+    elseif (X == 1) then
+      M
+    else
+      {Fib1 (X-1) M (N+M)}
+    end
+  end
+  Fib = fun {$ X}
+    {Fib1 X 1 1}
+  end
+  X = 1500
+  R = {Fib X}
+  skip Browse R
+end
+
+/* Outputs:
+
+X=1500
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : 1415338001064792265
+
+(35.52 secs, 14,187,021,128 bytes)
+
+X=1700
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : 6191931358466575682
+
+(45.78 secs, 18,191,957,976 bytes)
+
+X=1800
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : -7444749993583591759
+
+(52.21 secs, 20,381,047,336 bytes)
+
+X=1900
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : 2141288501034094421
+
+(57.85 secs, 22,694,424,816 bytes)
+
+X=2000
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : -820905900187520670
+
+(64.29 secs, 25,130,954,888 bytes)---->(>1 min)
+
+
+     X                    R                           Time
+    1500                 1415338001064792265          35.52 sec
+    1700                 6191931358466575682          45.78 sec
+    1900                  2141288501034094421         57.85 sec
+    2000                 -820905900187520670          64.29 sec
+
+    as observed above for X=2000 time excedes 1 minute with the more increase in X there will be more recursive calls to Fib1 and everytime we will be calculating the value for all smaller X.
+    here there is a recursion with one fib call and hence we are able to calcute till X=1900 with time less than 1 min
+
+*/
+
+
+
+
+//fib1_thread.txt
+
+local Fib X Result in
+  Fib = fun {$ In}
+    if (In == 0) then
+      1
+    elseif (In == 1) then
+      1
+    else
+      (thread {Fib (In-1)} end + thread {Fib (In - 2)} end)
+    end
+  end
+  X = 2
+  Result = {Fib X}
+  skip Browse Result
+end
+
+/* Outputs:
+X=0
+*Hoz> runFullT (Finite 3) "declarative threaded" "lab6/fib1_thread.txt" "lab6/fib1_thread.out"
+Result : 1
+
+X=1
+*Hoz> runFullT (Finite 3) "declarative threaded" "lab6/fib1_thread.txt" "lab6/fib1_thread.out"
+Result : 1
+
+X=2
+*Hoz> runFullT (Finite 3) "declarative threaded" "lab6/fib1_thread.txt" "lab6/fib1_thread.out"
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+Result : 2
+
+X=3
+*Hoz> runFullT (Finite 3) "declarative threaded" "lab6/fib1_thread.txt" "lab6/fib1_thread.out"
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+Result : 3
+
+X=4
+*Hoz> runFullT (Finite 3) "declarative threaded" "lab6/fib1_thread.txt" "lab6/fib1_thread.out"
+
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",40),("EXU5",41),("EXU3",35),("EXU2",29),("In",23),("EXU1",19),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",40),("EXU5",41),("EXU3",35),("EXU2",29),("In",23),("EXU1",19),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",40),("EXU5",41),("EXU3",35),("EXU2",29),("In",23),("EXU1",19),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",40),("EXU5",41),("EXU3",35),("EXU2",29),("In",23),("EXU1",19),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",40),("EXU5",41),("EXU3",35),("EXU2",29),("In",23),("EXU1",19),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",40),("EXU5",41),("EXU3",35),("EXU2",29),("In",23),("EXU1",19),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",75),("EXU5",76),("EXU3",66),("EXU2",54),("In",42),("EXU1",38),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",75),("EXU5",76),("EXU3",66),("EXU2",54),("In",42),("EXU1",38),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",75),("EXU5",76),("EXU3",66),("EXU2",54),("In",42),("EXU1",38),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",75),("EXU5",76),("EXU3",66),("EXU2",54),("In",42),("EXU1",38),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",75),("EXU5",76),("EXU3",66),("EXU2",54),("In",42),("EXU1",38),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",75),("EXU5",76),("EXU3",66),("EXU2",54),("In",42),("EXU1",38),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",38),("EXU5",39),("EXU3",32),("EXU2",26),("In",20),("EXU1",18),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)])]
+thread supsended: [("IntPlus" "EXU4" "EXU5" "EXU1",[("EXU4",18),("EXU5",19),("EXU3",15),("EXU2",12),("In",11),("EXU1",10),("Eq",3),("IntMinus",2),("Fib",8),("IntPlus",1)]),(skip/BResult,[("Fib",8),("X",9),("Result",10),("IntPlus",1),("IntMinus",2),("Eq",3),("GT",4),("LT",5),("Mod",6),("IntMultiply",7)])]
+Result : 5
+*/
+
+
+
+//PART2
+
+//both a and b part
+
+local Producer N Limit Out OddFilter P L F T Consumer Xs Ys Accumulator NotEqual in
+  Producer = proc {$ N Limit Out}
+    if (N<Limit) then T N1 in
+      Out = (N|T)
+      N1 = (N + 1)
+      {Producer N1 Limit T}
+    else Out = nil
+    end
+  end
+
+//odd filter
+ OddFilter = fun {$ P}
+    case P
+       of nil then nil
+       [] '|'(1:X 2:Xr) then in
+         if((X mod 2) == 0) then
+             (X|{OddFilter Xr})
+         else
+            {OddFilter Xr}
+        end
+    end
+  end
+
+//consumer
+ Consumer = fun {$ Xs Accumulator}
+     case Xs
+      of nil then Accumulator
+      [] '|'(1:X 2:Xr) then {Consumer Xr (X+Accumulator)}
+     end
+     //Accumulator
+  end
+
+
+// Example Testing
+  N = 0
+  L = 100
+
+  {Producer N L P} // [0 1 2 .. 100]
+  skip Browse P
+  Accumulator = {Consumer P 0}
+  skip Browse Accumulator
+  F= {OddFilter P} // [0 2 4 .. 100]
+  skip Browse F
+
+end
+
+
+
+
+
+/*
+
+*Hoz> runFull "declarative" "lab6/part2.txt" "lab6/part2.out"
+P : [ 0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 ]
+
+//Consumer Output
+Accumulator : 4950
+
+//OddFilter output
+F : [ 0  2  4  6  8  10  12  14  16  18  20  22  24  26  28  30  32  34  36  38  40  42  44  46  48  50  52  54  56  58  60  62  64  66  68  70  72  74  76  78  80  82  84  86  88  90  92  94  96  98 ]
+
+*/
+
+
+//c question:
+
+local Generate N Limit Out Sum in
+
+  fun {Generate N Limit}
+      if (N<Limit) then
+        (N|{Generate (N+1) Limit})
+     else nil
+     end
+  end
+
+  fun {Sum Xs A}
+    case Xs
+      of nil then A
+      [] (X|Xr) then {Sum Xr (A+X)}
+    end
+  end
+
+  local Xs S in
+    thread Xs={Generate 0 100}
+    skip Browse Xs end
+    thread S={Sum Xs 0}
+    skip Browse S  end
+  end
+end
+
+
+/*
+output
+
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/part2_1.txt" "lab6/part2_1.out"
+Xs : [ 0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 ]
+
+S : 4950
+
+*/

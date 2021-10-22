@@ -1,0 +1,68 @@
+/*local Fib Fib1 X R in
+  Fib1 = fun {$ X N M}
+    if (X == 0) then
+      M
+    elseif (X == 1) then
+      M
+    else
+      {Fib1 (X-1) M (N+M)}
+    end
+  end
+  Fib = fun {$ X}
+    {Fib1 X 1 1}
+  end
+  X = 1500
+  R = {Fib X}
+  skip Browse R
+end
+*/
+/* Outputs:
+
+X=1500
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : 1415338001064792265
+
+(35.52 secs, 14,187,021,128 bytes)
+
+X=1700
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : 6191931358466575682
+
+(45.78 secs, 18,191,957,976 bytes)
+
+X=1800
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : -7444749993583591759
+
+(52.21 secs, 20,381,047,336 bytes)
+
+X=1900
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : 2141288501034094421
+
+(57.85 secs, 22,694,424,816 bytes)
+
+X=2000
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib2_sugar.txt" "lab6/fib2_sugar.out"
+R : -820905900187520670
+
+(64.29 secs, 25,130,954,888 bytes)---->(>1 min)
+
+
+     X                    R                           Time
+    1500                 1415338001064792265          35.52 sec
+    1700                 6191931358466575682          45.78 sec
+    1900                  2141288501034094421         57.85 sec
+    2000                 -820905900187520670          64.29 sec
+
+    as observed above for X=2000 time excedes 1 minute with the more increase in X there will be more recursive calls to Fib1 and everytime we will be calculating the value for all smaller X.
+    here there is a recursion with one fib call and hence we are able to calcute till X=1900 with time less than 1 min
+
+*/
+
+
+
+local B in
+  B = thread true end
+  if B then skip Browse B end
+end

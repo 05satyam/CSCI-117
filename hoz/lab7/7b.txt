@@ -1,0 +1,151 @@
+local GateMaker AndG OrG NotG A B S IntToNeed Out MulPlex ByNeedImpl Ls X G Y Andd  Xxx Ys Xr Xx Yy Orr MulPlexAndG MulPlexOrG MulPlexRes InToNeedOut in
+
+  fun {GateMaker F}
+     fun {$ Xs Ys} GateLoop T in
+        fun {GateLoop Xs Ys}
+           case Xs of nil then nil
+                   [] '|'(1:X 2:Xr) then
+                      case Ys of nil then nil
+                              [] '|'(1:Y 2:Yr) then
+                                  ({F X Y}|{GateLoop Xr Yr})
+                      end
+           end
+        end
+        T = thread {GateLoop Xs Ys} end   // thread isn't (yet) a returnable expression
+	T
+     end
+  end
+
+  fun {NotG Xs} NotLoop T in
+     fun {NotLoop Xs}
+        case Xs of nil then nil
+                [] '|'(1:X 2:Xr) then ((1-X)|{NotLoop Xr})
+        end
+     end
+     T = thread {NotLoop Xs} end          // thread isn't (yet) a returnable expression
+     T
+  end
+
+//A. IntToNeed
+
+    fun {IntToNeed L} Y in
+       case L of nil then nil
+          [] '|'(1:X 2:Xs) then
+           byNeed fun {$} (X|{IntToNeed Xs}) end Y
+        Y
+        end
+    end
+
+
+
+//B. And gate using short circuiting
+  fun {Andd X Ys}
+     case X of nil then nil
+       [] '|'(1:Xx 2:Xr) then
+           if(Xx==0) then
+             (Xx|{Andd Xr Ys})
+           else
+              case Ys of nil then nil
+                  [] '|'(1:Yy 2:Yr) then
+                      (Yy|{Andd X Yr})
+              end
+          end
+      end
+  end
+
+// B. Or gate using short circuiting
+  fun {Orr Xs Ys}
+     case Xs of nil then nil
+       [] '|'(1:Xx 2:Xr) then
+           if(Xx==1) then
+             (1|{Orr Xr Ys})
+           else
+              case Ys of nil then nil
+                  [] '|'(1:Yy 2:Yr) then
+                      (Yy|{Orr Xs Yr})
+              end
+          end
+      end
+  end
+
+  Xxx =[0 1 1 0 0 1]
+  Y =[0 1 1 0 0 1]
+  AndG = {GateMaker {Andd Xxx Y}}   // Use GateMaker
+  OrG =  {GateMaker {Orr Xxx Y}} // Use GateMaker
+
+
+  fun {MulPlex A B S}
+    MulPlexAndG = {Andd {NotG S} A}
+    MulPlexOrG = {Andd S B}
+    MulPlexRes = {Orr MulPlexAndG MulPlexOrG}
+
+    MulPlexRes
+  end
+
+  // C. calling MulPlex wihtout using IntToNeed
+  S = [1 0 1 0 1 1]
+  Out = {MulPlex Xxx Y S}
+
+  // run a loop so the MulPlex threads can finish before displaying Out
+  local Loop in
+     proc {Loop X}
+        if (X == 0) then skip Basic
+        else {Loop (X-1)} end
+     end
+    {Loop 1000}
+  end
+
+  skip Browse Out
+
+
+
+  //D. calling MulPlex with IntToNeed
+     A = {IntToNeed [0 1 1 0 0 1]}
+     B = {IntToNeed [1 1 1 0 1 0]}
+     S = [1 0 1 0 1 1]
+     InToNeedOut = {MulPlex Xxx Y S}
+     // run a loop so the MulPlex threads can finish before displaying Out
+     local Loop in
+        proc {Loop X}
+           if (X == 0) then skip Basic
+           else {Loop (X-1)} end
+        end
+       {Loop 10}
+     end
+
+     skip Browse InToNeedOut
+
+     /*
+      (d.1) It depends on the value of S. If S is zero, it does not need the values of A and
+            B. If S is 1, then it needs the value of the other variables. For instance, if A = 0,
+            B=1, and S=1, then S will take the values of other variables like A= 0 and B=1. If
+            A= 0, B=0, and S=0, then S will not take the values of other variables because it
+            doesn’t need it.
+      (d.2)  it matches
+     */
+end
+
+/*
+    output for MulPlex output
+
+  case 1   IntoNeed is not used in this case
+    here i have used input
+    Xxx =[0 1 1 0 0 1]
+    Y =[0 1 1 0 0 1]
+    output is   Out : [ 0  1  1  0  0  1 ]
+
+
+
+
+    Case2  when InToNeed is used in MulPlex
+
+    same input is used here also like case 1
+    A = {IntToNeed [0 1 1 0 0 1]}
+    B = {IntToNeed [1 1 1 0 1 0]}
+    S = [1 0 1 0 1 1]
+
+    ouput
+    output is   Out : [ 0  1  1  0  0  1 ]
+
+
+*/

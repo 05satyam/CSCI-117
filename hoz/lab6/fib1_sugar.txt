@@ -1,0 +1,62 @@
+local Fib X Result in
+  Fib = fun {$ In}
+    if (In == 0) then
+      1
+    elseif (In == 1) then
+      1
+    else
+      ({Fib (In-1)} + {Fib (In - 2)})
+    end
+  end
+  X = 16
+  Result = {Fib X}
+  skip Browse Result
+end
+
+/* Output
+X=12
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 233
+
+(2.02 secs, 796,340,704 bytes)
+
+X=13
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 377
+
+(5.08 secs, 2,023,921,480 bytes)
+
+X=14
+*Hoz> runFullT (Finite 4) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 610
+
+(13.02 secs, 5,199,275,136 bytes)
+
+X=15
+*Hoz> runFullT (Finite 3) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 987
+
+(32.61 secs, 13,449,972,624 bytes)
+
+X=16
+*Hoz> runFullT (Finite 3) "declarative threaded" "lab6/fib1_sugar.txt" "lab6/fib1_sugar.out"
+Result : 1597
+
+(84.12 secs, 34,936,141,736 bytes)-----(>1min)
+
+
+Explanation:
+
+After observing the outpus we can say, for increasing value of X there is a pattern in output where sum of two consecutive outpus results in the third output
+eg. 377+610=987; 610+987=1597
+
+
+     X                    R           Time
+    12                 233          35.52 sec
+    13                 377          45.78 sec
+    14                  610         57.85 sec
+    15                 987          64.29 sec
+
+at X=16 we get a time more then 1 min. here, at X=16 only we are above 1min and this is because there are two recusive call in the Fib which wil be computing the values and will form like a binary threaded
+each node will have two child nodes and inturn will result in more time consumptions
+*/

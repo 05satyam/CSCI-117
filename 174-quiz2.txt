@@ -1,0 +1,41 @@
+question1:
+given array:  10, -8, -4, 3, -2, 5, 6, -2
+my asnwer to max subarray [3,-2,5,1]---> here i typed wrongly instead of 6 I typed 1 in hurry.
+
+rest i didnt give complete explanation but able to find max subarray with appropriate logic
+
+I would give myself 3 points for finding the max sum sub array
+
+question 2: BUILD-MAX-HEAP
+
+I would give 9 points as i have shown complete step with heapify implementation.
+
+There are some typing mistakes in words other than tree build for which I deduct 1 mark
+
+question 3
+total sample space is 36
+I missed one sample space of (5,1) and considered only {(1,5),(2,4),(3,3),(4,2)} because I counted (1,5) two times in hurry and hence calculated worgly
+
+so 0 marks as 5/36 was the correct answer
+
+question 4:
+
+here K value is correct but I didnt write the time complexities 
+I will grade 3 marks for the K value
+
+question 5:
+Not able to grade ideally I would have given 5 marks but as steps are not complete as after two steps i write down final asnwer due to times
+Maam kindly grade accordingly
+
+question 6:
+i would give myself 3 as appropriate explanation is missing according to me why i choose values
+
+quesyion 7:
+not attempted so 0 marks
+
+question 8:
+9 marks  because, in second part I have calculated a* f(n/b)<= cf(n) and mentioned the condition in solution
+but steps are not shown this calculation
+
+quesstion 9:
+1 mark

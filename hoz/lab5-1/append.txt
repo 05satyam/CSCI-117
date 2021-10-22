@@ -1,7 +1,6 @@
 // Append function p 133
 
-local Append L1 L2 L3
-Out Reverse Out1 in
+local Append L1 L2 L3 Out Reverse Out1 in
    Append = fun {$ Ls Ms}
                case Ls
                   of nil then Ms
