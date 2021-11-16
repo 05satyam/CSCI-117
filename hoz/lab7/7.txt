@@ -54,7 +54,7 @@ local  N  X Y F Z Times Merge Display Xr  Yr G H V1 F1 V2 F3  GG Generate X1 X2 
     skip Browse V11
   end
 
-//b generate hamming sequence
+//b generate hamming sequence and display
 
    proc {Display X N}
    fun {DisplayH Z Num}

@@ -121,7 +121,7 @@ local GateMaker AndG OrG NotG A B S IntToNeed Out MulPlex ByNeedImpl Ls X G Y An
             B=1, and S=1, then S will take the values of other variables like A= 0 and B=1. If
             A= 0, B=0, and S=0, then S will not take the values of other variables because it
             doesn’t need it.
-      (d.2)  it matches
+      (d.2)  Yes, they match up with what I got in (d.1).
      */
 end
 
