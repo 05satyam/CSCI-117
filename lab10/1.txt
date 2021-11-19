@@ -1,0 +1,261 @@
+1.  Calling n_queens with n=4....
+when length(Qs, N), is called it assign 4 unbounded variable as n =4 i.e. length([_7100, _7106, _7112, _7118], 4)
+Now on these 4 unbounded locations safe_queens is called one by one i.e. safe_queens([_7240, _7386, _7504, _7622])
+during first call:  safe_queens([_7386, _7504, _7622], _7240, 1)
+first constraint is applied to find out the location of queen to be placed
+ clpfd:(_7240#\=_7386)
+ clpfd:(abs(_7240-_7386)#\=1)
+ _8300 is 1+1
+
+after this safe_queens is called recursively with incrementing the queen number i.e. safe_queens([_7504, _7622], _7240, 2)
+and constraints are applied on each recursive call
+ clpfd:(_7240#\=_7504)
+ clpfd:(abs(_7240-_7504)#\=2)
+ _8914 is 2+1
+
+calling safe_queens: safe_queens([_7622], _7240, 3)
+ clpfd:(_7240#\=_7622)
+ clpfd:(abs(_7240-_7622)#\=3)
+ _9528 is 3+1
+
+ calling safe_queens: safe_queens([], _7240, 4) on last rescurisve call and then return from each call after 1st queen is placed.
+ Exit:safe_queens([_7622], _7240, 3)
+ Exit:safe_queens([_7504, _7622], _7240, 2)
+ Exit:safe_queens([_7386, _7504, _7622], _7240, 1)
+after the complete retrun safe_queens will be called with n=3 and the process continues till a complete solution is not found.
+
+ calling : safe_queens([_7386, _7504, _7622])
+ applying constraint:
+ clpfd:(_7386#\=_7504)
+ clpfd:(abs(_7386-_7504)#\=1)
+ _10142 is 1+1
+
+ call safe_queens: safe_queens([_7622], _7386, 2)
+ applying constraints:
+ clpfd:(_7386#\=_7622)
+ clpfd:(abs(_7386-_7622)#\=2)
+ _10756 is 2+1
+calling safe queen on last iteration and then returning all the recusive call:
+ Call:safe_queens([], _7386, 3)
+ Exit:safe_queens([], _7386, 3)
+ Exit:safe_queens([_7622], _7386, 2)
+ Exit:safe_queens([_7504, _7622], _7386, 1)
+
+ now again calling safe_queens with n=2 and placing the last two queens recusrively
+ Call:safe_queens([_7622], _7504, 1)
+applying constraint
+ clpfd:(_7504#\=_7622)
+ clpfd:(abs(_7504-_7622)#\=1)
+ _11370 is 1+1
+
+calling safe_queens:  safe_queens([], _7504, 2) and then returing all the rescuive calls:
+ Exit:safe_queens([], _7504, 2)
+ Exit:safe_queens([_7622], _7504, 1)
+ Call:safe_queens([_7622])
+ Call:safe_queens([], _7622, 1)
+ Exit:safe_queens([], _7622, 1)
+ Call:safe_queens([])
+ Exit:safe_queens([])
+ Exit:safe_queens([_7622])
+ Exit:safe_queens([_7504, _7622])
+ Exit:safe_queens([_7386, _7504, _7622])
+ Exit:safe_queens([_7240, _7386, _7504, _7622])
+ Exit:n_queens(4, [_7240, _7386, _7504, _7622])
+ Call:clpfd:labeling([ff], [_7240, _7386, _7504, _7622])
+
+ finally when all queens are placed final recursion is stopped by retruning all the calls and a total of 12 constraints are applied in finding the proper solutions
+
+ Exit:clpfd:labeling([ff], [2, 4, 1, 3])
+
+
+ The third argument in safe_queens keeps track of the number of queen we are going to place in the recusrive call. Its like a queen iteration index.
+
+
+2. sudoku
+
+program:
+
+sudoku(Rows) :-
+        length(Rows, 9), maplist(same_length(Rows), Rows),
+        append(Rows, Vs), Vs ins 1..9,
+        maplist(all_distinct, Rows),
+        transpose(Rows, Columns),
+        maplist(all_distinct, Columns),
+        Rows = [A,B,C,D,E,F,G,H,I],
+        blocks(A, B, C), blocks(D, E, F), blocks(G, H, I).
+
+blocks([], [], []).
+blocks([A,B,C|Bs1], [D,E,F|Bs2], [G,H,I|Bs3]) :-
+        all_distinct([A,B,C,D,E,F,G,H,I]),
+        blocks(Bs1, Bs2, Bs3).
+
+problem(1, [[_,_,_, _,_,_, _,_,_],
+            [_,_,_, _,_,3, _,8,5],
+            [_,_,1, _,2,_, _,_,_],
+
+            [_,_,_, 5,_,7, _,_,_],
+            [_,_,4, _,_,_, 1,_,_],
+            [_,9,_, _,_,_, _,_,_],
+
+            [5,_,_, _,_,_, _,7,3],
+            [_,_,2, _,1,_, _,_,_],
+            [_,_,_, _,4,_, _,_,9]]).
+
+
+explanantion:
+
+In the sudoku puzzle, CLPFD( Constraint Logic Programming over Finite Domains) library has been used. This library has two major use cases "declarative integer arithmetic " and "solving combinatorial problems" both these are used in sudoku problem.
+The function sudoku(Rows) takes a list of list as arguments. In line 9, an input of 9 rows has been given as length and a map has been given as second input.
+Furthermore, method append inserts variables with range of possible values into the lists.
+In maplist from the library we call all_distinct on all lists inside the list and later on matrix transpose has been done using library inbuilt function where we transpose rows into columns.
+The purpose of all_distinct is to make sure that every value in the list just occurs once as per sudoku rules.
+Now, again perform the transpose of the matrix and call all_distinct to ensure all number occurs only once column wise.
+Now, start converting rows in n*n sub-block to check whether they are all self-distinct and follow the property of sudoku.
+Again, we use maplist to call predicate label1 to make sure all domains have one concrete value.
+When a  blocks/3 has non-empty lists, Prolog will use the pipe (|) to split up given rows into the first three rows and the rest(tail) to use
+later. We will recursively call the list until they are split to empty lists.
+Finally sudoku will be solved by using recursion over the above explanation.
+
+3. knights and knave
+
+% You are on an island where every inhabitant is either a knight or a
+% knave. Knights always tell the truth, and knaves always lie. The
+% following examples show how various cases can be solved with CLP(B),
+% Constraint Logic Programming over Boolean variables.
+
+% These examples appear in Raymond Smullyan's "What Is the Name of
+% this Book" and Maurice Kraitchik's "Mathematical Recreations".
+
+
+:- use_module(library(clpb)).
+
+
+% We use Boolean variables A, B and C to represent the inhabitants.
+% Each variable is true iff the respective inhabitant is a knight.
+% Notice that no search is required for any of these examples.
+
+
+% Example 1: You meet two inhabitants, A and B.
+%            A says: "Either I am a knave or B is a knight."
+
+example_knights(1, [A,B]) :-
+        sat(A=:=(~A + B)).
+
+
+% Example 2: A says: "I am a knave, but B isn't."
+
+example_knights(2, [A,B]) :-
+        sat(A=:=(~A * B)).
+
+
+% Example 3: A says: "At least one of us is a knave."
+
+example_knights(3, [A,B]) :-
+        sat(A=:=card([1,2],[~A,~B])).
+
+
+% Example 4: You meet 3 inhabitants. A says: "All of us are knaves."
+%            B says: "Exactly one of us is a knight."
+
+example_knights(4, Ks) :-
+        Ks = [A,B,C],
+        sat(A=:=(~A * ~B * ~C)),
+        sat(B=:=card([1],Ks)).
+
+
+% Example 5: A says: "B is a knave."
+%            B says: "A and C are of the same kind."
+%            What is C?
+
+example_knights(5, [A,B,C]) :-
+        sat(A=:= ~B),
+        sat(B=:=(A=:=C)).
+
+
+% Example 6: A says: "I am a knave, but B isn't."
+%            B says: "EXCATLY one of us is a knight."
+
+example_knights(6, [A,B,C]) :-
+        		sat(A=:=(~A * B)),
+        		sat(B=:=card([1],[A,B,C])).
+
+% example_knights(6, [A,B,C])
+% A = B, B = C, C = 0
+
+
+% Example 7: A says: "At least one of us are knights."
+% B says: "Either I am a knight or A is a knave."
+  example_knights(7, Ks) :-
+   Ks = [A,B,C],
+   sat(A=:=(A * B * C)),
+   sat(B=:=(~B + A)).
+
+% example_knights(7, [A,B,C])
+% A = B, B = C, C = 1
+
+
+% Example 8: A says: "All of us are KNAVE."
+%            B says. "Exactly one of us is a knave."
+      example_knights(8, Ks) :-
+       Ks = [A,B,C],
+       sat(A=:=(~A * ~B * ~C)),
+       sat(B=:=card([1],Ks)).
+
+% example_knights(8, [A,B,C])
+% A = C, C = 0,
+%B = 1
+
+
+
+
+
+
+
+
+
+%--------------------------------PART 2----------------------------------------
+
+:- use_module(library(clpfd)).
+reverse([],[]). %reverse of empty is empty - base case
+reverse([H|T], RevList):-
+ reverse(T, RevT), append(RevT, [H], RevList). %concatenation
+
+accumulatorFun([],[],C,[T3]):- T3 #= C.
+accumulatorFun([H1|T1],[H2|T2],Carry2,[H3|T3]):-
+ H3 #= (H1+H2+Carry2) mod 10,
+ Carry #= (H1+H2+Carry2) div 10,
+ accumulatorFun(T1,T2,Carry,T3).
+
+cryptThem([H1|L1],[H2|L2],[H3|L3],L4) :-
+ L4 ins 0..9,
+ H1 #\= 0, H2 #\= 0,
+ all_different(L4),
+ reverse([H1|L1], Out1), reverse([H2|L2], Out2), reverse([H3|L3], Out3),
+ accumulatorFun(Out1, Out2,0, Out3).
+
+
+ %example:
+ ?-cryptThem([S,E,N,D],[M,O,R,E],[M,O,N,E,Y],[S,E,N,D,M,O,R,Y]),
+labeling([ff],[S,E,N,D,M,O,R,Y]).
+
+D = 7,
+E = 5,
+M = 1,
+N = 6,
+O = 0,
+R = 8,
+S = 9,
+Y = 2
+
+
+% example 2:
+crypt1([J,A,Z,Z,E,D],[B,U,Z,Z,E,D],[D,Z,Y,J,J,A,E],[J,A,Z,E,D,B,U]),
+labeling([ff],[J,A,Z,E,D,B,U]).
+
+A = Y, Y = 4,
+B = 7,
+D = 1,
+E = 2,
+J = 6,
+U = 0,
+Z = 3
