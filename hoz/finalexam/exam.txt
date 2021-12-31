@@ -1,0 +1,15 @@
+fun {FindMin A N} Min Loc I in
+   {NewCell A.1 Min}
+   {NewCell 0 Loc}
+   {NewCell 1 I}
+   while @I =< N
+      0 =< @Loc
+      if A.@I < @Min
+      then
+         Min := A.@I
+         Loc := @I
+      end
+      I := @I + 1
+   end
+   Loc # Min
+end

@@ -1,0 +1,164 @@
+//-----------------------------part 1: a-----------------------------------------
+local SumListS SumList Out1 Out2 in
+    fun {SumList L}
+      case L of nil then 0
+        [] '|'(1:H 2:T) then (H + {SumList T})
+      end
+    end
+    fun {SumListS L}
+      SListS = newCell 0
+      SumListN in
+        fun {SumListN L}
+          case L of nil then @SListS
+            [] '|'(1:H 2:T) then SListS := (H + @SListS) {SumListN T}
+          end
+        end
+      {SumListN L}
+    end
+
+  Out1 = {SumList [1 2 3 4]}
+  Out2 = {SumListS [1 2 3 4]}
+  skip Browse Out1
+  skip Browse Out2
+  skip Full
+
+end
+
+local FoldLS FoldL Out1 Out2 Z in
+    fun {FoldL F Z L}
+      case L of nil then Z
+        [] '|'(1:H 2:T)
+        then
+        {FoldL F {F Z H} T}
+      end
+    end
+    fun {FoldLS F Z L}
+      FL = newCell 0
+      FoldLN in
+        proc {FoldLN F Z L}
+        case L of nil then FL := @FL
+          [] '|'(1:H 2:T) then
+          FL := 0
+          FL := {F Z H}
+          {FoldLN F @FL T}
+        end
+    end
+
+  {FoldLN F Z L}
+  @FL
+  end
+
+Out1 = {FoldL fun {$ X Y} (X+Y) end 3 [1 2 3 4]}
+Out2 = {FoldLS fun {$ X Y} (X+Y) end 3 [1 2 3 4]}
+skip Browse Out1
+skip Browse Out2
+skip Full
+end
+
+
+//Part1: b---------------
+/*
+When you add Skip Full in SumList and FoldL, it will give the values of Out1 and Out2.
+After running it in hoz interpreter, we will see output kernel syntax for both the program, as well as multiple stores and
+environments for these two functions.
+as we can see in above images, by using skip Full we are able to see the stack environment and all kernel syntax details
+
+for sum Out1 and Out2 is displayed and for FoldLH Out1 and Out2 is displayed
+*/
+
+
+
+
+//----------------------------------------PART2------------------------------------
+local Generate Num GenF Out1 Out2 Out3 in
+  fun {Generate}
+    Num = newCell -1
+    fun {$}
+      Num:= (@Num + 1)
+      @Num
+    end
+  end
+GenF = {Generate}
+Out1 = {GenF}
+Out2 = {GenF}
+Out3 = {GenF}
+skip Browse Out1
+skip Browse Out2
+skip Browse Out3
+end
+
+/*outputs
+
+Out1 : 0
+
+Out2 : 1
+
+Out3 : 2
+
+*/
+
+
+//-------------------------------PART3: a-------------------------------------------
+local NewQueue S Pu Po IsE Av A1 A2 B1 B2 V1 V2 V3 Out Append Out1 in
+    Append = fun {$ Ls Ms}
+      case Ls
+        of nil then (Ms|nil)
+        [] '|'(1:X 2:Lr) then Y in
+        Y = {Append Lr Ms}
+        (X|Y)
+      end
+    end
+    fun {NewQueue L}
+      C = newCell nil
+      S = newCell 0
+      Push Pop IsEmpty SlotsAvailable in
+      proc {Push X}
+      if (@S==L) then
+        B = @C in
+        case B of '|'(1:Y 2:S1) then C:=S1 end
+        C:={Append @C X }
+        S:=(@S+1)
+      else
+        C:={Append @C X}
+        S:=(@S+1)
+      end
+    end
+    fun {Pop} B = @C in
+      case B of '|'(1:X 2:S1) then C:=S1 X end
+    end
+    fun {IsEmpty} (@C==nil) end
+    fun {SlotsAvailable} B in
+      B = (L - @S)
+      B
+    end
+    ops(push:Push pop:Pop isEmpty:IsEmpty avail:SlotsAvailable)
+    end
+S = {NewQueue 2}
+S = ops(push:Pu pop:Po isEmpty:IsE avail:Av)
+B1 = {IsE}
+A1 = {Av}
+{Pu 1}
+{Pu 2}
+A2 = {Av}
+{Pu 3}
+B2 = {IsE}
+V1 = {Po}
+V2 = {Po}
+V3 = {Po}
+Out = [V1 V2 V3 B1 B2 A1 A2]
+skip Browse Out
+end
+
+/*
+
+B)
+ADT is secure because it does not allow us to change the data of the queue just we need to have some token
+that will allow us to perform action like  push, pop etc from the queue.
+
+
+C)
+In secure declarative ADT, wrapping is not been used because wrapping is only used for unbundling ADTs.
+Moreover, the function takes a list S which is hidden by lexical scoping and this function returns record
+of procedure values ops(pop:Pop push:Push isEmpty: isEmpty). Hence, more memory is allocated when more variables are
+created that set equal to the operations that don’t return a value.
+*/
